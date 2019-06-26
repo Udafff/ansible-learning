@@ -1,0 +1,6 @@
+# Ignore Vagrant data files
+*/.vagrant/
+*.log
+.vagrant
+*.retry
+.vscode

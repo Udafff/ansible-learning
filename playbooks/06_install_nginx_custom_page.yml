@@ -1,0 +1,29 @@
+---
+- name: "Install nginx server"
+  hosts: host1
+  become: yes
+
+  vars:
+    params_message: "Hello world from nginx"
+
+  tasks:
+    - name: "Install nginx package"
+      package: name=nginx state=present
+
+    - name: "Copy nginx config"
+      copy:
+        src: nginx.conf
+        dest: "/etc/nginx/nginx.conf"
+      notify: "restart nginx"
+
+    - name: "Copy customized html page"
+      template:
+        src: "index.html.j2"
+        dest: "{{ www_folder }}/index.html"
+
+    - name: "Ensure that nginx server enabled and running"
+      service: name=nginx enabled=yes state=started
+  
+  handlers:
+    - name: "restart nginx"
+      service: name=nginx state=restarted

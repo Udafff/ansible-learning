@@ -1,0 +1,22 @@
+---
+- name: "Test variables list"
+  hosts: localhost
+
+  vars:
+    params: 
+      name: uav
+      groups: [adm,sudo,user]
+
+    dict_user: {name: uav, groups: [adm,user,sudo], comment: "Udovichenko AV"}
+  
+  tasks:
+  # msg= expect text
+  - debug: msg={{ params.name }}
+  - debug: msg={{ params.groups }}
+  - debug: msg={{ params.groups[0] }}
+  - debug: msg={{ dict_user.name }}
+  - debug: msg={{ dict_user.groups[2] }}
+  # var= expect variable 
+  - debug: var=params.name
+  - debug: var=params.groups[1]
+  

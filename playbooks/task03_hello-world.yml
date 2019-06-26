@@ -1,0 +1,9 @@
+---
+  - name: "Hello world play"
+    
+    hosts: localhost
+
+    tasks:
+    - debug: msg="Hello world"
+    - shell: echo "Hello world"
+    - shell: echo "{{ msg }}"

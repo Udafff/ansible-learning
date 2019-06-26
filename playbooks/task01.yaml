@@ -1,0 +1,12 @@
+---
+-  name: "Test playbook"
+   hosts: groupA
+
+   tasks:
+     - name: "Task 01"
+       debug:
+         msg: "This is task 01"
+
+     - name: "Task 02"
+       debug:
+         msg: "This is task 02"

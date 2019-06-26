@@ -1,0 +1,4 @@
+data - VM shared folders
+machines - machines files
+playbooks - Ansible playbooks
+provisioners - VM provisioners

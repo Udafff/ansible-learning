@@ -1,0 +1,10 @@
+---
+- name: "Run shell command"
+  hosts: all
+
+  tasks:
+  - name: "Execute some command"
+    shell: hostname -f
+    args:
+      executable: /bin/bash
+  
