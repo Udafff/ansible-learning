@@ -1,0 +1,33 @@
+---
+- name: "Control VM"
+  hosts: all
+  become: yes
+
+  vars:
+    # mkpasswd --method=sha-512
+    user_params: { name: uav, password: "$5$z2k2agruFvoA5.PS$MDm.1xOia0HccvpdB2ofNMvYxK9DxFUxAqwkSUqpeX/", shell: "/bin/bash",
+      groups: [adm, sudo, cdrom, dip, plugdev, lpadmin, sambashare], comment: "Udovichenko AV"}      
+    
+    packages_list: [bash-completion, tree, whois]
+
+  tasks:
+    - name: "Add new user to system"
+      user: "{{ user_params}}"
+        #name: "{{ user_params.name}}"   
+        #comment: "{{ user_params.comment }}"
+        #password: "{{ user_params.passwd }}"       
+        #shell:  "{{ user_params.shell }}"
+        #state: present
+    
+    - name: "Add user to groups"
+      user: 
+        name: "{{ user_params.name }}"
+        group: "{{ user_params.name }}"
+        groups: "{{ user_params.name }}"
+        append: yes
+        state: present
+
+    - name: "Install packages to system"
+      package:
+        name: "{{ packages_list}}"
+        state: present

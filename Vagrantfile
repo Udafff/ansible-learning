@@ -2,7 +2,7 @@ Vagrant.configure("2") do |config|
     # Variables:
     # vm_lab_name - Lab name for grouping VM in the VirtualBox
     # vm_files_dir - dir with VM files configs
-    vm_lab_name = "Lab_Template"
+    vm_lab_name = "Ansible-workspace"
     vm_files_dir = "machines"
 
     # Read only file names from vm_files_dir dir to array (exclude dirs)
@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
     # Network settings
     private_subnet="192.168.1."
     first_ip=10
-    first_forward_port = 2200
+    #first_forward_port = 2200
 
     # Remove Ansible inventory file to generate new one
     File.delete("playbooks/inventory") if File.exist?("playbooks/inventory")
@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
         vm_name = vm_file
         # Network for VM
         ip = "#{private_subnet}#{first_ip + vagrant_files.find_index(vm_name)}"
-        forward_port = first_forward_port + vagrant_files.find_index(vm_name)
+        #forward_port = first_forward_port + vagrant_files.find_index(vm_name)
                 
         # Add line to Ansible inventory file
         File.write("playbooks/inventory", "#{vm_name} ansible_ssh_host=#{ip}\n", mode: 'a')

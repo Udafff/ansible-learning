@@ -1,4 +1,5 @@
-vm_box = "bento/ubuntu-18.10"
+# for synced_folder type 'virtualbox', dont forget to install "vagrant plugin install vagrant-vbguest"
+vm_box = "generic/centos7"
 
 config.vm.define "#{vm_name}" do |config|
     config.vm.box = "#{vm_box}"
@@ -8,11 +9,11 @@ config.vm.define "#{vm_name}" do |config|
 
     # Network
     #config.vm.network "private_network", type: "dhcp",  auto_config: false
-    config.vm.network "forwarded_port", guest: 22, host: "#{forward_port}", id: "ssh", auto_correct: true
+    #config.vm.network "forwarded_port", guest: 22, host: "#{forward_port}", id: "ssh", auto_correct: true
     config.vm.network "private_network", ip: "#{ip}"
 
     # Provisioners - Shell
-    config.vm.provision "shell", path: "provisioners/init.sh"
+    #config.vm.provision "shell", path: "provisioners/init.sh"
 
     # Provisioners - Ansible
     #config.vm.provision "ansible_local" do |ansible|
@@ -21,13 +22,13 @@ config.vm.define "#{vm_name}" do |config|
     #end
 
     # Synced folders
-    config.vm.synced_folder "data/#{vm_name}", "/share/data",
+    config.vm.synced_folder "data/#{vm_name}", "/share/data", type: 'virtualbox',
       mount_options: ["dmode=775,fmode=660"], owner: "vagrant", group: "root"
 
-    config.vm.synced_folder "playbooks", "/share/playbooks",
+    config.vm.synced_folder "playbooks", "/share/playbooks", type: 'virtualbox',
       mount_options: ["dmode=775,fmode=660"], owner: "vagrant", group: "root"
 
-    config.vm.synced_folder ".", "/vagrant",
+    config.vm.synced_folder ".", "/vagrant", type: 'virtualbox',
       mount_options: ["dmode=775,fmode=660"], owner: "vagrant", group: "root"
 
       # Virtualbox provider config
