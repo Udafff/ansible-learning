@@ -5,29 +5,61 @@
 
   vars:
     # mkpasswd --method=sha-512
-    user_params: { name: uav, password: "$5$z2k2agruFvoA5.PS$MDm.1xOia0HccvpdB2ofNMvYxK9DxFUxAqwkSUqpeX/", shell: "/bin/bash",
-      groups: [adm, sudo, cdrom, dip, plugdev, lpadmin, sambashare], comment: "Udovichenko AV"}      
-    
-    packages_list: [bash-completion, tree, whois]
+    user_params: { name: uav, password: "$5$z2k2agruFvoA5.PS$MDm.1xOia0HccvpdB2ofNMvYxK9DxFUxAqwkSUqpeX/", shell: "/bin/bash", comment: "Udovichenko AV",
+      generate_ssh_key: yes}
+
 
   tasks:
-    - name: "Add new user to system"
-      user: "{{ user_params}}"
-        #name: "{{ user_params.name}}"   
-        #comment: "{{ user_params.comment }}"
-        #password: "{{ user_params.passwd }}"       
-        #shell:  "{{ user_params.shell }}"
-        #state: present
-    
-    - name: "Add user to groups"
-      user: 
-        name: "{{ user_params.name }}"
-        group: "{{ user_params.name }}"
-        groups: "{{ user_params.name }}"
-        append: yes
+    # Install packages
+    - name: "Install packages to system"
+      vars:
+        packages_list:
+          Ubuntu: "bash-completion,tree,whois"
+          CentOS: "bash-completion,tree,whois,nano"
+      package:
+        name: "{{ packages_list[ansible_distribution] }}"
         state: present
 
-    - name: "Install packages to system"
-      package:
-        name: "{{ packages_list}}"
+
+    # Setup sudo
+    - name: "Add sudo group"
+      group: name=sudo
+
+    - name:
+      lineinfile:
+        path: "/etc/sudoers.d/sudo_group"
+        create: yes
+        mode: 440
+        line: "%sudo   ALL=(ALL:ALL) ALL"
+
+    
+    # Setup ssh
+    - name: "Enable ssh PasswordAuthentication"
+      lineinfile:
+        path: "/etc/ssh/sshd_config"
+        regexp: "^PasswordAuthentication"
+        line: "PasswordAuthentication yes"
+    
+    - name: "Disable ssh GSSAPIAuthentication"
+      lineinfile:
+        path: "/etc/ssh/sshd_config"
+        regexp: "^GSSAPIAuthentication"
+        line: "GSSAPIAuthentication no"  
+
+    
+    # Add new user
+    #- debug: msg="{{ user_groups[ansible_distribution] }}"
+    - name: "Add new user to system"
+      user: "{{ user_params }}"
+    
+    - name: "Add user to groups"
+      vars:
+        user_groups:
+          Ubuntu: "adm, sudo, cdrom, dip, plugdev, lpadmin, sambashare"
+          CentOS: "adm, sudo"
+      user: 
+        name: "{{ user_params.name }}"
+        group: "{{ user_params.name }}"        
+        groups:  "{{ user_groups[ansible_distribution] }}, {{user_params.name}}"
+        append: yes
         state: present
