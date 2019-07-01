@@ -10,22 +10,25 @@
 
 
   tasks:
+    # Ansible variable examples
+    #- debug: msg="{{ hostvars['control-vm']['ansible_eth0']['ipv4']['address'] }}"
+    #- debug: msg="{{ hostvars['control-vm'].ansible_eth0.ipv4.address }}"
+    #- debug: msg="{{ ansible_python.executable }}"
     # Install packages
     - name: "Install packages to system"
       vars:
         packages_list:
           Ubuntu: "bash-completion,tree,whois"
-          CentOS: "bash-completion,tree,whois,nano"
+          CentOS: "bash-completion,tree,whois,nano"      
       package:
         name: "{{ packages_list[ansible_distribution] }}"
         state: present
-
-
+    
     # Setup sudo
     - name: "Add sudo group"
       group: name=sudo
 
-    - name:
+    - name: "Create sudoers.d file for sudo group"
       lineinfile:
         path: "/etc/sudoers.d/sudo_group"
         create: yes

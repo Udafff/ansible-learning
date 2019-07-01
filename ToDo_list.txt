@@ -1,2 +1,5 @@
 - Auto VM data folders creating - Done
 - Read VM file names to an array - Done
+
+ssh keys?
+ansible config file
