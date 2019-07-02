@@ -1,0 +1,8 @@
+---
+- name: "Create user by name"
+  hosts: all
+
+  roles:
+  - role: add_admin_user
+    user_name: user02
+    comment: "Admin User 02"

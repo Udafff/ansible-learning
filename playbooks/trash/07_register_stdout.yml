@@ -1,0 +1,12 @@
+---
+- name: "Register stout to variable"
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: "Run command"
+    shell: ip addr show eth1 | grep link
+    register: eth1_stdout
+
+  - debug: var=eth1_stdout.stdout
+      

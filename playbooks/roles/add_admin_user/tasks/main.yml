@@ -1,0 +1,45 @@
+---
+# tasks file for roles/add_admin_user
+#- debug: msg="I'm from role"
+#- debug: var=user_name
+#- debug: msg="Username:{{ user_name }}"
+
+- name: "Add sudo group"
+  group: name=sudo
+
+- name: "Create sudoers.d file for sudo group"
+  become: yes
+  lineinfile:
+    path: "/etc/sudoers.d/sudo_group"
+    create: yes
+    mode: 440
+    line: "%sudo   ALL=(ALL:ALL) ALL"
+
+#- debug: var=user_password
+#- debug: var=shell
+#- debug: var=generate_ssh_key
+#- debug: var=comment
+
+# user_params: { name: uav, password: "$5$z2k2agruFvoA5.PS$MDm.1xOia0HccvpdB2ofNMvYxK9DxFUxAqwkSUqpeX/", shell: "/bin/bash", comment: "Udovichenko AV",      generate_ssh_key: yes}
+- name: "Add new user to system"
+  become: yes
+  user:
+    name: "{{ user_name }}"
+    password: "{{ password }}"
+    shell: "{{ shell }}"
+    comment: "{{ comment }}"
+    generate_ssh_key: "{{ generate_ssh_key }}"
+
+
+- name: "Add user to groups"
+  become: yes
+  vars:
+    user_groups:
+      Ubuntu: "adm, sudo, cdrom, dip, plugdev, lpadmin, sambashare"
+      CentOS: "adm, sudo"
+  user: 
+        name: "{{ user_name }}"
+        group: "{{ user_name }}"        
+        groups:  "{{ user_groups[ansible_distribution] }}, {{user_name}}"
+        append: yes
+        state: present

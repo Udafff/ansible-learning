@@ -1,0 +1,6 @@
+---
+# Web pages folders for nginx server
+
+nginx_root:
+  CentOS: /usr/share/nginx/html
+  Ubuntu: /var/www/html

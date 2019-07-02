@@ -1,0 +1,42 @@
+---
+# Install nginx server
+
+# Install nginx package
+- name: "install nginx"
+  package: name=nginx state=present
+  become: yes
+
+# Ensure that nginx server enabled and running
+- name: "start nginx"
+  service: name=nginx enabled=yes state=started
+  become: yes
+
+# Create firewalld rule (open http/https ports) and restart service
+# CentOS
+- name: "open firewall ports"
+  become: yes
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: disabled
+  loop: [http, https]
+  notify: restart firewalld
+  when: ansible_distribution == "CentOS"
+
+# Gather the facts about installed nginx
+- name: "get nginx version"
+  shell: "/usr/sbin/nginx -v 2>&1 | awk -F ': ' '{print $2}'"
+  register: nginx_version
+
+- name: "create folder for gathering facts"
+  become: yes
+  file: path=/etc/ansible/facts.d state=directory
+
+- name: "save gathered facts"
+  become: yes
+  copy:
+    content: |
+      {
+        "version": "{{ nginx_version.stdout }}"
+      }
+    dest: /etc/ansible/facts.d/nginx.fact

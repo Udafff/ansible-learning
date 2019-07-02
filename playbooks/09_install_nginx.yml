@@ -1,0 +1,14 @@
+---
+# Install nginx server cluster
+
+- name: "install backend nodes"
+  hosts: all:!control-vm
+  roles:
+  #- nginx-base role included as dependencies: [nginx-base] in file: roles/nginx-backend/meta/main.yml
+  - nginx-backend
+
+- name: "install loadbalancer node"
+  hosts: control-vm
+  roles:
+  #- nginx-base role included as dependencies: [nginx-base] in file: roles/nginx-loadbalacer/meta/main.yml
+  - nginx-loadbalancer

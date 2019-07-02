@@ -1,0 +1,14 @@
+---
+# defaults file for roles/add_admin_user
+
+# Default password for user: Password
+password: '$6$EUeYdQEtiiJ$7j8DuWxaR8dopp1WeVvyRPh/f5cRhETwCfFRdYF6.GRX92iHO8LpwPDBZ0xJQXfT0LjNCQc/c6N2Q1Dl1az9z0'
+
+# Default shell for user
+shell: '/bin/bash'
+
+# Generate ssh keys for user
+generate_ssh_key: 'yes'
+
+# Default comment for user
+comment: ''

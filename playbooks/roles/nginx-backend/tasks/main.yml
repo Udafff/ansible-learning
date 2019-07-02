@@ -1,0 +1,11 @@
+---
+# Copy customozed html page to web-server dir
+
+- debug: msg={{ nginx_root[ansible_distribution] }}
+
+# Copy customized html page
+- name: "copy custom page"
+  become: yes
+  template:
+    src: index.html.j2
+    dest: "{{ nginx_root[ansible_distribution] }}/index.html"
