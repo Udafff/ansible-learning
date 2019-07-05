@@ -18,8 +18,8 @@
     - name: "Install packages to system"
       vars:
         packages_list:
-          Ubuntu: "bash-completion,tree,whois"
-          CentOS: "bash-completion,tree,whois,nano"      
+          Ubuntu: "bash-completion,tree,whois,python3-venv"
+          CentOS: "bash-completion,tree,whois,nano,python36,python36-virtualenv"      
       package:
         name: "{{ packages_list[ansible_distribution] }}"
         state: present
@@ -42,12 +42,29 @@
         path: "/etc/ssh/sshd_config"
         regexp: "^PasswordAuthentication"
         line: "PasswordAuthentication yes"
+      # Restart sshd by handler
+      notify: "Restart sshd"
     
     - name: "Disable ssh GSSAPIAuthentication"
       lineinfile:
         path: "/etc/ssh/sshd_config"
         regexp: "^GSSAPIAuthentication"
-        line: "GSSAPIAuthentication no"  
+        line: "GSSAPIAuthentication no"
+      register: noGSSAPIAuth
+    #- debug: var=noGSSAPIAuth
+
+    # Restart sshd by registered variable
+    - name: "restart sshd if changed"
+      service: name=sshd state=restarted
+      when: noGSSAPIAuth is changed
+
+    # Test fail module
+    - name: "Print fail message"
+      fail:
+        msg: |
+          Message from fail module
+          There is no additional information
+      when: false
 
     
     # Add new user
@@ -66,3 +83,9 @@
         groups:  "{{ user_groups[ansible_distribution] }}, {{user_params.name}}"
         append: yes
         state: present
+    
+  handlers:
+    - name: "Restart sshd"
+      service:
+        name: sshd
+        state: restarted

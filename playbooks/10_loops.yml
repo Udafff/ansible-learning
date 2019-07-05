@@ -1,0 +1,93 @@
+---
+- name: "List home dirs"
+  hosts: all
+
+  tasks:
+  # stdout lines
+  - name: "get the list of home folders"
+    command: ls /home
+    register: home_dirs
+
+  - name:
+    debug: msg="{{item}}"
+    loop: "{{ home_dirs.stdout_lines }}"
+
+  # Standart loop
+  - name: "simple loop"
+    #template: src={{ item.src }} dest={{ item.dest }}
+    debug: msg="src={{ item.src }} dest={{ item.dest }}"
+    loop:
+      # Json type definition
+      - { src: testsource1, dest: /example/dest1/test.conf }
+      - { src: testsource2, dest: /example/dest2/test.conf }
+      # YAML type definition
+      - src: testsource3
+        dest: /example/dest3/test.conf }
+      - src: testsource4
+        dest: /example/dest4/test.conf }
+
+  # Standart loop with index
+  - name: "loop with index"
+    debug:
+      # item.0 => index
+      # item.1 => value
+      msg: "There's '{{ item.1 }}' at the position {{ item.0 + 1 }}"
+    # Also: with_items ; with dict 
+    with_indexed_items:    
+    - "{{ fruits }}" 
+    vars:
+      fruits:
+      - Apple
+      - Orange
+      - Mango
+  
+  # Nested loop
+  - name: "nested loop"
+    debug: msg="User {{ item[0] }} will be addedd to group - {{ item[1] }}"
+    with_nested:
+      - [ 'alice', 'bob' ]
+      - [ 'sudo', 'users' ]
+
+  # loop files    
+  - name: "looping files"
+    debug: msg="File {{ item.src }} permissions {{ item.mode }}"
+    with_filetree:
+    - files/
+    # with_file - content of files
+    # with_fileglob - path to files by pattern (/etc/*.conf)
+
+  # loop lines from file
+  - name: "read lines from file"
+    shell: "echo {{ item }}"
+    register: result
+    with_lines:
+    - "awk -F '=' '{print $2}' inventory"  
+  - debug: var=result
+
+  ###########
+
+  # Loops. Do-Until
+  # - name: "Install Flannel"
+  #   command: kubectl apply -f {{ flannel_config }}
+
+  # - shell: kubectl get nodes | grep {{ absible_hostname }}
+  #   until: "'NotReady' not in result.stdout"
+  #   register: result
+  #   retries: 15
+  #   delay: 10
+
+  # - name: "do-until loop"
+  #   shell: sleep 5 &
+  # - shell: ps -ef | grep '[s]leep 5' || echo
+  #   register: result
+  #   until: result.stdout_lines | length == 0
+  #   retries: 11
+  #   delay: 1
+
+
+
+
+
+
+  
+

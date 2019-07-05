@@ -1,0 +1,27 @@
+---
+- name: "Run docker containers"
+
+  hosts: srv03-ubuntu
+
+  tasks:
+  - name: Start Docker Container
+    docker_container:
+      name: "centos-{{ item }}"
+      state: started
+      image: centos:7
+      command: "sleep infinity"
+    with_sequence: count=3
+    register: centos
+
+  - name: Start Docker Container
+    docker_container:
+      name: "ubuntu-{{ item }}"
+      state: started
+      image: ubuntu:16.04
+      command: "sleep infinity"
+    with_sequence: count=3
+    register: ubuntu
+
+  - debug: var=centos
+
+    

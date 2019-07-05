@@ -1,0 +1,20 @@
+# ---
+# - name: "group hosts"
+
+- hosts: all
+  tasks:
+    - debug: var=groups
+      run_once: yes
+
+    - group_by: key={{ ansible_distribution }}
+
+    - debug: var=groups
+      run_once: yes
+
+- hosts: Ubuntu
+  tasks:  
+  - name: "Run lsb_release on Ubuntu hosts"
+    shell: "lsb_release -a"
+    register: release
+
+  - debug: var=release.stdout_lines

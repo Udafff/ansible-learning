@@ -1,0 +1,17 @@
+---
+- name: "Install docker server"
+
+  hosts: srv03-ubuntu
+
+  roles:
+    - role: docker
+      become: yes
+
+  tasks:
+    - name: "Add vagrant user to docker group"
+      become: yes
+      user:
+        name: "vagrant"        
+        groups:  "docker"
+        append: yes
+        state: present
