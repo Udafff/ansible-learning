@@ -1,0 +1,65 @@
+---
+- hosts: srv04-lxd
+  tasks:
+    - name: Start LXD containers
+      lxd_container:
+        name: "centos-{{ item }}"
+        state: started
+        source:
+          type: image
+          server: https://images.linuxcontainers.org
+          alias: centos/7/amd64        
+        url: unix:/var/snap/lxd/common/lxd/unix.socket
+        wait_for_ipv4_addresses: true
+        # config:
+        #   user.user-data: |
+        #     #cloud-config
+        #     ssh_authorized_keys:
+        #      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWr63K2sJADbf2awpLUXvgH7L7pFzll4exfcsLuAF2qL1cf0fy+l5iDLIALpxdBFVu9OpePbGfYwwBSfEx9ToaMFo7bO/zfRATek9Cu9TSXRMGuEOViuLDwwXGzEbngPBiotamqJAq3Mk/nXiHDxrmk6+WroEUVZWmKAPsL50JpL3kScXrjA3ixYP5Mu5BdQ+CubqL9/rDn1JQhh5tytLjfEULvEnaZyhlYhm/tadEH290gbTNSRuNDsPAumRflg0h887HRyfxdl0sYycyqxlzgScd9ed8LmUGCuhuK1dModVTLIsKfjWUkmpd/8AomGIPjWPDNRYDTzpMTYSTVhuH
+
+          #"cloud-config\nssh_authorized_keys:\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWr63K2sJADbf2awpLUXvgH7L7pFzll4exfcsLuAF2qL1cf0fy+l5iDLIALpxdBFVu9OpePbGfYwwBSfEx9ToaMFo7bO/zfRATek9Cu9TSXRMGuEOViuLDwwXGzEbngPBiotamqJAq3Mk/nXiHDxrmk6+WroEUVZWmKAPsL50JpL3kScXrjA3ixYP5Mu5BdQ+CubqL9/rDn1JQhh5tytLjfEULvEnaZyhlYhm/tadEH290gbTNSRuNDsPAumRflg0h887HRyfxdl0sYycyqxlzgScd9ed8LmUGCuhuK1dModVTLIsKfjWUkmpd/8AomGIPjWPDNRYDTzpMTYSTVhuH"            
+      with_sequence: count=1
+      register: centos_containers
+    #- debug: msg="{{ centos_containers.results[0].invocation.module_args.name }} - {{ centos_containers.results[0].addresses.eth0[0] }}"
+
+    # - name: Print containers info
+    #   debug: msg="{{ container_info.name }} - {{ container_ip }}"
+    #   loop: "{{ centos_containers.results }}"
+    #   loop_control: 
+    #     label: "{{ container_info.name }}"
+    #   vars:
+    #     container_info: "{{ item.invocation.module_args }}"
+    #     container_ip: "{{ item.addresses.eth0[0] }}"
+
+    # - name: Build inventory
+    #   add_host:
+    #     name: "{{ container_info.name }}"
+    #     ansible_host: "{{ container_ip }}"
+    #     #ansible_connection: lxd
+    #     ansible_connection: ssh
+    #     groups: "lxd_container"
+    #   loop: "{{ centos_containers.results }}"
+    #   loop_control: 
+    #     label: "{{ container_info.name }}"
+    #   vars:
+    #     container_info: "{{ item.invocation.module_args }}"
+    #     container_ip: "{{ item.addresses.eth0[0] }}"
+    # Print hosts groups
+    # - name: List containers
+    #   debug: var=groups.lxd_container
+
+    # - name: Work with container      
+    #   delegate_to: centos-1
+    #   raw: echo Hello
+
+# - hosts: lxd_container
+#   tasks:
+#   - name: "Ping containers"
+#     ping:
+
+
+    # - name: Destroy container
+    #   lxd_container:
+    #     name: "centos-{{ item }}"
+    #     state: absent
+    #   with_sequence: count=3

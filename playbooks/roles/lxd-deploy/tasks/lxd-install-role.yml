@@ -1,0 +1,45 @@
+---
+# LXD system container manager deploying
+
+- name: "LXD snap package installation"
+  snap: name=lxd
+
+- name: "Create temporary file for LXD config"
+  tempfile:
+    state: file
+    suffix: initial_config.yaml
+  register: tmp_lxd_config
+
+- name: "Copy LXD init config"
+  template:
+    src: initial_config.yaml.j2
+    dest: "{{ tmp_lxd_config.path }}"
+
+# Print initial config
+- name: "Print initial config"
+  shell: "cat {{ tmp_lxd_config.path }}"
+  register: cat_lxd_config
+- debug: var=cat_lxd_config.stdout_lines
+
+### It doesn't work
+# Run LXD init and remove temp config file
+#- name: "Run LXD init command"
+#  shell: "/snap/bin/lxd init --preseed {{ tmp_lxd_config.path }}"
+#  register: lxd_init_out
+#- debug: var=lxd_init_out
+
+# - name: "Remove the temporary config file"
+#   file:
+#     path: "{{ tmp_lxd_config.path }}"
+#     state: absent
+#   when: tmp_lxd_config.path is defined
+
+- name: "Add user '{{ admin_user_name }}' to 'lxd' group"
+  vars:
+    user_groups:
+      Ubuntu: "lxd"
+      CentOS: "lxd"
+  user: 
+    name: "{{ admin_user_name }}"
+    groups:  "{{ user_groups[ansible_distribution] }}"
+    append: yes

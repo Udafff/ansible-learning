@@ -59,12 +59,12 @@
       when: noGSSAPIAuth is changed
 
     # Test fail module
-    - name: "Print fail message"
-      fail:
-        msg: |
-          Message from fail module
-          There is no additional information
-      when: false
+    # - name: "Print fail message"
+    #   fail:
+    #     msg: |
+    #       Message from fail module
+    #       There is no additional information
+    #   when: false
 
     
     # Add new user

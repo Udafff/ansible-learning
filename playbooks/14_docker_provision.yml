@@ -1,0 +1,48 @@
+---
+- hosts: srv03-ubuntu
+  
+  tasks:
+  - name: Start Docker Container
+    docker_container:
+      name: "centos-{{ item }}"
+      state: started
+      image: centos:7
+      command: "sleep infinity"
+    with_sequence: count=1
+    register: centos # Register Centos containers as a list
+
+  - name: Build Inventory
+    add_host:
+      # 'container' variable is defined in the vars section below
+      name: "{{ container.Name[1:] }}"
+      ansible_connection: docker
+      ansible_become: root  
+      #ip_address: "{{ container.NetworkSettings.IPAddress }}"
+      # ansible_docker_extra_args: "--tlsverify --tlscacert=/path/to/ca.pem --tlscert=/path/to/client-cert.pem --tlskey=/path/to/client-key.pem -H=tcp://myserver.net:4243"
+      ansible_docker_extra_args: "-H=tcp://192.168.1.13:2375"
+      groups:
+      - the_stack
+    loop: "{{ centos.results }}" # Loop all containers (centos list)
+    # Control output
+    loop_control:
+      label: "{{ container.Name }}"
+    vars:
+      container: "{{ item.ansible_facts.docker_container }}"
+
+  - debug: var=groups
+
+- hosts: the_stack   
+  tasks:
+  - name: "Ping containers"
+    ping:
+
+  roles:  
+  - nginx-backend
+
+- hosts: srv03-ubuntu
+  tasks:
+  - name: "Destroy all containers in the stack"    
+    docker_container:
+      name: "{{ item }}"
+      state: absent
+    with_items: "{{ groups['the_stack'] }}"

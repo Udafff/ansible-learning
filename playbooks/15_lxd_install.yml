@@ -1,0 +1,10 @@
+---
+- name: "Install LXD"
+  hosts: srv04-lxd
+
+  roles:
+    - role: lxd-deploy
+      become: yes
+      vars:
+        admin_user_name: "vagrant"
+        storage_pools_size: "15GB"

@@ -11,7 +11,7 @@
       image: centos:7
       command: "sleep infinity"
     with_sequence: count=3
-    register: centos
+    register: centos # Register CentOS containers as a list
 
   - name: Start Docker Container
     docker_container:
@@ -20,8 +20,49 @@
       image: ubuntu:16.04
       command: "sleep infinity"
     with_sequence: count=3
-    register: ubuntu
+    register: ubuntu # Register Ubuntu containers as a list
 
-  - debug: var=centos
+  - debug:
+      # print a message with: centos.results[].ansible_facts.docker_container.Name
+      # ubuntu.results[].ansible_facts.docker_container.Name
+      msg: >
+        {{ item.ansible_facts.docker_container.Name[1:] }} # Use python slice to remove firs slash from container name
+        {{ item.ansible_facts.docker_container.NetworkSettings.IPAddress }}
+    loop: "{{ centos.results + ubuntu.results }}" # Loop all containers (centos list + ubuntu list)
+    # Control output
+    loop_control:
+      label: "{{ item.ansible_facts.docker_container.Name }}"
 
-    
+  # Dynamic inventory creation
+  - name: "Compose In-Memory Inventory"
+    add_host:
+      # 'container' variable is defined in the vars section below
+      name: "{{ container.Name[1:] }}"
+      ansible_connection: docker
+      ip_address: "{{ container.NetworkSettings.IPAddress }}"
+      groups:
+      - the_stack
+    loop: "{{ centos.results + ubuntu.results }}" # Loop all containers (centos list + ubuntu list)
+    # Control output
+    loop_control:
+      label: "{{ container.Name }}"
+    vars:
+      container: "{{ item.ansible_facts.docker_container }}"
+
+  - debug: var=groups
+
+# fatal: [/ubuntu-3]: FAILED! => {"msg": "Docker version check (['/usr/bin/docker', 'version', '--format', \"'{{.Server.Version}}'\"]) failed: Got permission denied while trying to connect to the Docker daemon socket at
+# unix:///var/run/docker.sock: Get http://%2Fvar%2Frun%2Fdocker.sock/v1.24/version: dial unix /var/run/docker.sock: connect: permission denied\n"}
+# - hosts: the_stack:!the_stack[0]
+#   roles:
+#   - nginx-backend
+
+# - hosts: the_stack[0]
+#   roles:
+#   - nginx-loadbalancer
+  
+  - name: "Destroy all containers in the stack"    
+    docker_container:
+      name: "{{ item }}"
+      state: absent
+    with_items: "{{ groups['the_stack'] }}"

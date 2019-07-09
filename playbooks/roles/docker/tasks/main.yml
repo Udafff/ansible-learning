@@ -10,9 +10,6 @@
     - gnupg-agent
     - software-properties-common
     - python-backports.ssl-match-hostname
-    #- python3-pip
-    #- python-pip
-    #- virtualenv
     - python-docker
     state: present
     force_apt_get: yes
@@ -39,13 +36,18 @@
     force_apt_get: yes
     update_cache: yes
 
+- name: "Configuring remote access with systemd unit file"
+  lineinfile:
+    path: "/lib/systemd/system/docker.service"
+    regexp: "^ExecStart=/usr/bin/dockerd"
+    line: "ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock -H tcp://0.0.0.0:2375"
+
+- name: Force systemd to reread configs
+  systemd:
+    daemon_reload: yes
+
 - name: 'Start the docker service'
   service:
-    name: 'docker'
-    state: 'started'
-    enabled: 'yes'
-
-# - name: 'Install pip docker'
-#   pip:
-#     name: 'docker-py'
-#     state: 'present'
+    name: docker
+    state: restarted
+    enabled: yes
