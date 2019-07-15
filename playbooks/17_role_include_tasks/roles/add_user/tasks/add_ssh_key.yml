@@ -1,0 +1,2 @@
+- name: Add user ssh key
+  debug: msg="Add {{ user_name }} ssh key to authorized keys:{{ ssh_pub_key }}"

@@ -1,0 +1,15 @@
+---
+- name: "Query the environment variables available on the controller when you invoked Ansible"
+  hosts: localhost
+
+  tasks:
+  - name: "Find HOME"
+    debug: msg="{{ lookup('env','HOME') }} is user home dir from an environment variable"
+
+  - name: "Parse PATH"
+    debug: msg="{{ item }}"
+    loop: "{{ lookup('env','PATH').split(':') }}"
+
+  - name: "Parse PATH again"
+    debug: msg="{{ item.split(':') }}"
+    with_env: 'PATH'

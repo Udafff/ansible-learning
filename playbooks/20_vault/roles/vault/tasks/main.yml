@@ -1,0 +1,4 @@
+- name: "Print encrypted string"
+  include_tasks: print_encrypted_str.yml
+  when: '"print_encypted_string" in operations'
+  

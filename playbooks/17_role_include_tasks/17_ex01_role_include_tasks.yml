@@ -1,0 +1,16 @@
+---
+- name: Use Case with Includes
+  hosts: all
+  
+  # Run role with included tasks
+  roles:
+  - role: add_user
+    vars:
+      user_name: udov
+      user_groups: [sudo, adm, users]
+      ssh_pub_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWr63K2sJADbf2awpLUX"
+      operations:
+        - add_user
+        - add_user_to_groups
+        - add_ssh_key
+  

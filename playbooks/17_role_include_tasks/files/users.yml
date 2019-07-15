@@ -1,0 +1,3 @@
+users:
+  - { name: uav, key: ssh-rsa AAAAB3N }
+  - { name: vagrant, key: ssh-rsa 2EAAAAD }

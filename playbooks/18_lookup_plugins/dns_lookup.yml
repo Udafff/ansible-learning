@@ -1,0 +1,20 @@
+---
+# sudo apt-get install python-dnspython python3-dnspython
+- name: "Runs queries against DNS servers to retrieve DNS records"
+  hosts: localhost
+
+  tasks:
+  - name: "Get A record of epam.com"
+    debug: msg="{{ lookup('dig', 'epam.com') }}"
+
+  - name: "Get MX of epam.com"
+    debug: msg="{{ lookup('dig', 'epam.com/MX') }}"
+
+  - name: "Get MX of epam.com as list"
+    debug: msg="{{ lookup('dig', 'epam.com', 'qtype=MX', wantlist=True) }}"
+
+  - name: "Get XMPP SRV records"
+    debug: msg="XMPP service for gmail.com. is available at {{ item.target }} on port {{ item.port }}"
+    with_items: "{{ lookup('dig', '_xmpp-server._tcp.gmail.com./SRV', '@8.8.8.8', 'flat=0', wantlist=True) }}"
+
+    

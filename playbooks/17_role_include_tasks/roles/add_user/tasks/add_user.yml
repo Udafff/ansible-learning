@@ -1,0 +1,2 @@
+- name: Create user
+  debug: msg="Create user {{ user_name }}"

@@ -1,0 +1,12 @@
+---
+- name: "Working with vault"
+  hosts: localhost
+
+  roles:
+    - role: vault
+      vars:
+        gather_facts: no
+        operations:
+          # ansible-playbook 20_vault/vault.yml --ask-vault-pass
+          # P@ssw0rd
+          - print_encypted_string

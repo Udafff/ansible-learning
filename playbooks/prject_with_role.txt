@@ -1,0 +1,3 @@
+vagrant@control-vm:/share/playbooks$ mkdir -p 20_vault/roles/vault
+vagrant@control-vm:/share/playbooks$ mkdir -p 20_vault/roles/{tasks,templates,habdlers,vars}
+vagrant@control-vm:/share/playbooks$ touch 20_vault/roles/{tasks,templates,habdlers,vars}/main.yml

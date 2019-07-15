@@ -1,0 +1,11 @@
+- name: "Include add_user tasks"
+  include_tasks: add_user.yml
+  when: '"add_user" in operations'
+
+- name: "Include add_user_to_groups tasks"
+  include_tasks: add_user_to_groups.yml
+  when: '"add_user_to_groups" in operations'
+
+- name: "Include add_ssh_key tasks"
+  include_tasks: add_ssh_key.yml
+  when: '"add_ssh_key" in operations'

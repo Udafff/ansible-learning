@@ -1,0 +1,21 @@
+---
+- name: Use Case with Includes
+  hosts: all
+  
+  # Run role with included tasks in a loop
+  vars:
+    users:
+    - { name: uav, key: ssh-rsa AAAAB3N }
+    - { name: vagrant, key: ssh-rsa 2EAAAAD }
+    
+  tasks:
+  - name: Creting Users by list
+    include_role: name=add_user
+    vars:
+      user_name: "{{ item.name }}"
+      ssh_pub_key: "{{ item.key }}"
+      operations:
+        - add_user
+        - add_ssh_key
+    loop: "{{ users }}"
+    

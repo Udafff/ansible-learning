@@ -1,65 +1,119 @@
 ---
 - hosts: srv04-lxd
   tasks:
-    - name: Start LXD containers
+    - name: Start LXD - Ubuntu containers
       lxd_container:
-        name: "centos-{{ item }}"
+        # name: "centos-{{ item }}"
+        name: "{{ inventory_host.inventory_hostname }}"
         state: started
+        profiles: ["init-profile"]
         source:
           type: image
-          server: https://images.linuxcontainers.org
-          alias: centos/7/amd64        
+        #   server: https://images.linuxcontainers.org
+          server: https://cloud-images.ubuntu.com/releases
+          protocol: simplestreams
+        #   alias: centos/7/amd64
+          alias: bionic
         url: unix:/var/snap/lxd/common/lxd/unix.socket
         wait_for_ipv4_addresses: true
-        # config:
-        #   user.user-data: |
-        #     #cloud-config
-        #     ssh_authorized_keys:
-        #      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWr63K2sJADbf2awpLUXvgH7L7pFzll4exfcsLuAF2qL1cf0fy+l5iDLIALpxdBFVu9OpePbGfYwwBSfEx9ToaMFo7bO/zfRATek9Cu9TSXRMGuEOViuLDwwXGzEbngPBiotamqJAq3Mk/nXiHDxrmk6+WroEUVZWmKAPsL50JpL3kScXrjA3ixYP5Mu5BdQ+CubqL9/rDn1JQhh5tytLjfEULvEnaZyhlYhm/tadEH290gbTNSRuNDsPAumRflg0h887HRyfxdl0sYycyqxlzgScd9ed8LmUGCuhuK1dModVTLIsKfjWUkmpd/8AomGIPjWPDNRYDTzpMTYSTVhuH
+        timeout: 600
+        devices:
+          # configure network interface
+          eth0:
+            type: nic
+            nictype: bridged
+            parent: lxdbr0
+            # get ip address from inventory
+            ipv4.address: "{{ inventory_host.ansible_ssh_host }}"
+      with_items: "{{ groups['containers'] }}"
+      register: ubuntu_containers
+      vars:
+        inventory_host: "{{ hostvars[item] }}"      
 
-          #"cloud-config\nssh_authorized_keys:\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWr63K2sJADbf2awpLUXvgH7L7pFzll4exfcsLuAF2qL1cf0fy+l5iDLIALpxdBFVu9OpePbGfYwwBSfEx9ToaMFo7bO/zfRATek9Cu9TSXRMGuEOViuLDwwXGzEbngPBiotamqJAq3Mk/nXiHDxrmk6+WroEUVZWmKAPsL50JpL3kScXrjA3ixYP5Mu5BdQ+CubqL9/rDn1JQhh5tytLjfEULvEnaZyhlYhm/tadEH290gbTNSRuNDsPAumRflg0h887HRyfxdl0sYycyqxlzgScd9ed8LmUGCuhuK1dModVTLIsKfjWUkmpd/8AomGIPjWPDNRYDTzpMTYSTVhuH"            
-      with_sequence: count=1
-      register: centos_containers
-    #- debug: msg="{{ centos_containers.results[0].invocation.module_args.name }} - {{ centos_containers.results[0].addresses.eth0[0] }}"
+    # Debug getting inventory data
+    - debug: msg="{{ inventory_host.ansible_ssh_host }}   {{ inventory_host.inventory_hostname }}"
+      with_items: "{{ groups['containers'] }}"
+      vars:
+        inventory_host: "{{ hostvars[item] }}"
+      tags:
+        - never
+        - debug
+      
 
-    # - name: Print containers info
-    #   debug: msg="{{ container_info.name }} - {{ container_ip }}"
-    #   loop: "{{ centos_containers.results }}"
-    #   loop_control: 
-    #     label: "{{ container_info.name }}"
-    #   vars:
-    #     container_info: "{{ item.invocation.module_args }}"
-    #     container_ip: "{{ item.addresses.eth0[0] }}"
-
-    # - name: Build inventory
-    #   add_host:
-    #     name: "{{ container_info.name }}"
-    #     ansible_host: "{{ container_ip }}"
-    #     #ansible_connection: lxd
-    #     ansible_connection: ssh
-    #     groups: "lxd_container"
-    #   loop: "{{ centos_containers.results }}"
-    #   loop_control: 
-    #     label: "{{ container_info.name }}"
-    #   vars:
-    #     container_info: "{{ item.invocation.module_args }}"
-    #     container_ip: "{{ item.addresses.eth0[0] }}"
-    # Print hosts groups
-    # - name: List containers
-    #   debug: var=groups.lxd_container
-
-    # - name: Work with container      
-    #   delegate_to: centos-1
-    #   raw: echo Hello
-
-# - hosts: lxd_container
-#   tasks:
-#   - name: "Ping containers"
-#     ping:
-
-
-    # - name: Destroy container
+    # - name: Start LXD CentOS containers
     #   lxd_container:
     #     name: "centos-{{ item }}"
-    #     state: absent
-    #   with_sequence: count=3
+    #     state: started
+    #     profiles: ["init-profile"]
+    #     source:
+    #       type: image
+    #       server: https://images.linuxcontainers.org
+    #       protocol: simplestreams
+    #     #   alias: centos/7/amd64
+    #       fingerprint: 00ae97187712
+    #     url: unix:/var/snap/lxd/common/lxd/unix.socket
+    #     wait_for_ipv4_addresses: true
+    #     timeout: 600
+    #   with_sequence: count=1
+    #   register: centos_containers
+    #- debug: msg="{{ centos_containers.results[0].invocation.module_args.name }} - {{ centos_containers.results[0].addresses.eth0[0] }}"
+
+    - name: Print containers info
+      debug: msg="{{ container_info.name }} - {{ container_ip }}"
+      loop: "{{ ubuntu_containers.results }}"
+      loop_control: 
+        label: "{{ container_info.name }}"
+      vars:
+        container_info: "{{ item.invocation.module_args }}"
+        container_ip: "{{ item.addresses.eth0[0] }}"
+      tags:
+        - never
+        - debug
+
+    - name: Build inventory
+      add_host:
+        name: "{{ container_info.name }}"
+        ansible_host: "{{ container_ip }}"
+        #ansible_connection: lxd
+        ansible_connection: ssh
+        groups: "lxd_container"
+      loop: "{{ ubuntu_containers.results }}"
+      loop_control: 
+        label: "{{ container_info.name }}"
+      vars:
+        container_info: "{{ item.invocation.module_args }}"
+        container_ip: "{{ item.addresses.eth0[0] }}"
+        
+    # Print hosts groups
+    - name: List containers
+      debug: var=groups.lxd_container
+      tags:
+        - never
+        - debug
+      
+    - name: Destroy container
+      lxd_container:
+        name: "{{ item }}"
+        state: absent
+      with_items: "{{ groups.lxd_container }}"
+      tags:
+        - never
+        - destroy
+    
+  # Install nginx backend nodes
+# - hosts: lxd_container:!lxd_container[0]
+#   roles:
+#   - nginx-backend
+  
+  # Install nginx backend nodes
+# - hosts: lxd_container[0]
+#   tasks:
+#     - name: Collect facts
+#       setup:
+#       register: container_facts
+#     # - debug: var=container_facts
+#     - debug: var=container_facts.ansible_facts.ansible_virtualization_type
+#     # - debug: var=container_facts.ansible_facts.ansible_domain
+    
+#   roles:
+#   - nginx-loadbalancer

@@ -1,0 +1,2 @@
+- name: Add user to groups
+  debug: msg="Add {{ user_name }} to groups {{ user_groups }}"

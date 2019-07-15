@@ -1,0 +1,17 @@
+--- 
+- name: "Test callbacks"
+  hosts: localhost
+
+  tasks:
+    # Run don't available file to raise the error
+    - name: Copy unavailable playbook
+      template:
+        src: dont_available.file
+        dest: /
+
+# Run:
+# ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook 19_debug_playbooks/stdout_callback.yml
+# export ANSIBLE_STDOUT_CALLBACK=yaml
+# export ANSIBLE_STDOUT_CALLBACK=debug
+# export ANSIBLE_DISPLAY_ARGS_TO_STDOUT=yes
+# ANSIBLE_DEBUG=yes

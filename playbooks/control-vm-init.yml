@@ -23,6 +23,7 @@
       package:
         name: "{{ packages_list[ansible_distribution] }}"
         state: present
+      tags: packages
     
     # Setup sudo
     - name: "Add sudo group"

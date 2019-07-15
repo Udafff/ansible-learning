@@ -4,3 +4,7 @@
 nginx_root:
   CentOS: /usr/share/nginx/html
   Ubuntu: /var/www/html
+
+index_html_template:
+  lxc: lxc_index.html.j2
+  virtualbox: index.html.j2
