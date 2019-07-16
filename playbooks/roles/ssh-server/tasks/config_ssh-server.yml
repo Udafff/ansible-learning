@@ -1,0 +1,17 @@
+---
+# Setup ssh
+- name: "Enable ssh PasswordAuthentication"
+  lineinfile:
+    path: "/etc/ssh/sshd_config"
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication yes"
+  # Restart sshd by handler
+  notify: "Restart sshd"
+
+- name: "Disable ssh GSSAPIAuthentication"
+  lineinfile:
+    path: "/etc/ssh/sshd_config"
+    regexp: "^GSSAPIAuthentication"
+    line: "GSSAPIAuthentication no"
+  # Restart sshd by handler
+  notify: "Restart sshd"

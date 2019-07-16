@@ -1,0 +1,16 @@
+---
+# Create user and add him to groups
+- name: "Add new user [{{ user_params.user_name }}] to system"
+  user:
+    name: "{{ user_params.user_name }}"
+    password: "{{ user_params.password | default('!') }}"
+    shell: "{{ user_params.shell | default('/bin/bash') }}"
+    comment: "{{ user_params.comment | default('') }}"
+    generate_ssh_key: "{{ user_params.generate_ssh_key | default('no') }}"
+
+- name: "Add user to groups"
+  user: 
+    name: "{{ user_params.user_name }}"
+    group: "{{ user_params.user_name }}"        
+    groups:  "{{ user_params.user_groups | default('') }}, {{ user_params.user_name }}"
+    append: yes

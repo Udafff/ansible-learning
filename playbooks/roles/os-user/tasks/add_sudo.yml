@@ -1,0 +1,16 @@
+---
+# Install sudo packege and setup sudo group
+- name: Install sudo package
+  package: 
+    name: sudo
+    state: present
+
+- name: "Add sudo group"
+  group: name=sudo
+
+- name: "Create sudoers.d file for sudo group"
+  lineinfile:
+    path: "/etc/sudoers.d/sudo_group"
+    create: yes
+    mode: 440
+    line: "%sudo   ALL=(ALL:ALL) ALL"

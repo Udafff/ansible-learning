@@ -1,0 +1,5 @@
+---
+- name: "Install openssh-server package to system"
+  package:
+    name: "openssh-server"
+    state: present

@@ -1,0 +1,92 @@
+---
+- name: "Control VM"
+  hosts: all
+  become: yes
+
+  vars:
+    # mkpasswd --method=sha-512
+    user_params: { name: uav, password: "$5$z2k2agruFvoA5.PS$MDm.1xOia0HccvpdB2ofNMvYxK9DxFUxAqwkSUqpeX/", shell: "/bin/bash", comment: "Udovichenko AV",
+      generate_ssh_key: yes}
+
+
+  tasks:
+    # Ansible variable examples
+    #- debug: msg="{{ hostvars['control-vm']['ansible_eth0']['ipv4']['address'] }}"
+    #- debug: msg="{{ hostvars['control-vm'].ansible_eth0.ipv4.address }}"
+    #- debug: msg="{{ ansible_python.executable }}"
+    # Install packages
+    - name: "Install packages to system"
+      vars:
+        packages_list:
+          Ubuntu: "bash-completion,tree,whois,python3-venv"
+          CentOS: "bash-completion,tree,whois,nano,python36,python36-virtualenv"      
+      package:
+        name: "{{ packages_list[ansible_distribution] }}"
+        state: present
+      tags: packages
+    
+    # Setup sudo
+    - name: "Add sudo group"
+      group: name=sudo
+
+    - name: "Create sudoers.d file for sudo group"
+      lineinfile:
+        path: "/etc/sudoers.d/sudo_group"
+        create: yes
+        mode: 440
+        line: "%sudo   ALL=(ALL:ALL) ALL"
+
+    
+    # Setup ssh
+    - name: "Enable ssh PasswordAuthentication"
+      lineinfile:
+        path: "/etc/ssh/sshd_config"
+        regexp: "^PasswordAuthentication"
+        line: "PasswordAuthentication yes"
+      # Restart sshd by handler
+      notify: "Restart sshd"
+    
+    - name: "Disable ssh GSSAPIAuthentication"
+      lineinfile:
+        path: "/etc/ssh/sshd_config"
+        regexp: "^GSSAPIAuthentication"
+        line: "GSSAPIAuthentication no"
+      register: noGSSAPIAuth
+    #- debug: var=noGSSAPIAuth
+
+    # Restart sshd by registered variable
+    - name: "restart sshd if changed"
+      service: name=sshd state=restarted
+      when: noGSSAPIAuth is changed
+
+    # Test fail module
+    # - name: "Print fail message"
+    #   fail:
+    #     msg: |
+    #       Message from fail module
+    #       There is no additional information
+    #   when: false
+
+    
+    # Add new user
+    #- debug: msg="{{ user_groups[ansible_distribution] }}"
+    - name: "Add new user to system"
+      user: "{{ user_params }}"
+    
+    - name: "Add user to groups"
+      vars:
+        user_groups:
+          Ubuntu: "adm, sudo, cdrom, dip, plugdev, lpadmin, sambashare"
+          CentOS: "adm, sudo"
+      user: 
+        name: "{{ user_params.name }}"
+        group: "{{ user_params.name }}"        
+        groups:  "{{ user_groups[ansible_distribution] }}, {{user_params.name}}"
+        append: yes
+        state: present
+    
+  handlers:
+    - name: "Restart sshd"
+      service:
+        name: sshd
+        state: restarted

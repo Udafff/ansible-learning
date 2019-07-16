@@ -1,0 +1,44 @@
+---
+- name: Operation System provision
+  hosts: all
+  become: yes
+
+  tasks:
+  # User provisioning
+  - name: Creating user
+    include_role: name=os-user
+    vars:
+      user_params:
+        user_name: "adm"
+        # mkpasswd --method=sha-512
+        password: "$6$De/62McD$SbAf9E/3/E4HrdJKICCFZ2.L8h.WKYHl4lMdLtKdb2GAQXZCpd0TBzPanW9PXN5QLVuCLy1GhWTuQCVXATuRI0"
+        shell: "/bin/bash"
+        comment: "Udovichenko AV"
+        generate_ssh_key: yes
+        user_groups: "sudo, adm"
+      operations:
+        # install sudo package and add sudo group as sudoers
+        - add_sudo
+        # Create user and add him to groups
+        - add_user
+    tags: create user
+  
+  # Install default and user packages
+  - name: Install packages
+    include_role: name=install-packages
+    vars:
+      defaults: yes
+      packages: "nano"
+      operations:
+        - install_packages
+    tags: install packages
+
+  # Configure openssh-server
+  - name: Configure openssh-server
+    include_role: name=ssh-server
+    vars:
+      operations:
+        - install
+        # Disable GSSAPIAuthentication and enable PasswordAuthentication 
+        - config
+    tags: config ssh

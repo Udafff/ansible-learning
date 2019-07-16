@@ -1,0 +1,18 @@
+---
+- name: "Install default packages to system"
+  vars:
+    default_packages:
+      Ubuntu: "bash-completion,tree,whois,python3-venv"
+      CentOS: "bash-completion,tree,whois,nano,python36,python36-virtualenv"
+      Debian: "bash-completion,tree,whois,nano"
+  package:
+    name: "{{ default_packages[ansible_distribution] }}"
+    state: present
+  when: defaults|bool
+
+
+- name: "Install user packages to system"
+  package:
+    name: "{{ packages }}"
+    state: present
+  when: packages is defined

@@ -1,0 +1,7 @@
+- name: "Include install_ssh-server tasks"
+  include_tasks: install_ssh-server.yml
+  when: "'install' in operations"
+
+- name: "Ssh daemon configuration tasks"
+  include_tasks: config_ssh-server.yml
+  when: "'config' in operations"
