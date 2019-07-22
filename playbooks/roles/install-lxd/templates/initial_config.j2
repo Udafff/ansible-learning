@@ -7,24 +7,27 @@ networks:
   managed: false
   name: lxdbr0
   type: ""
+
 storage_pools:
 - config:
-    size: {{ storage_pools_size }}
+    size: {{ storage_config.size | default("15GB") }}
   description: ""
-  name: default
+  name: {{ storage_config.name | default("lxc_storage_pool") }}
   driver: zfs
+
 profiles:
 - config: {}
   description: ""
   devices:
-    {{ ansible_default_ipv4.interface }}:
-      name: {{ ansible_default_ipv4.interface }}
+    eth0:
+      name: eth0
       nictype: bridged
       parent: lxdbr0
       type: nic
     root:
       path: /
-      pool: default
+      pool: {{ storage_config.name | default("lxc_storage_pool") }}
       type: disk
   name: default
+
 cluster: null

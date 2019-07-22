@@ -1,4 +1,4 @@
-vm_box = "generic/debian9"
+vm_box = "bento/ubuntu-19.04"
 
 config.vm.define "#{vm_name}" do |config|
     config.vm.box = "#{vm_box}"
@@ -18,8 +18,10 @@ config.vm.define "#{vm_name}" do |config|
     # Provisioners - Ansible
     config.vm.provision "ansible_local" do |ansible|
         ansible.playbook = "/share/playbooks/os-provision.yml"
+        ansible.install_mode = "pip"
+        ansible.version = "latest"
         # ansible.galaxy_roles_path = "/share/playbooks/roles"
-        ansible.verbose = true
+        # ansible.verbose = true
     end
 
     # Synced folders

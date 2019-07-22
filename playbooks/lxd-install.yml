@@ -1,0 +1,21 @@
+---
+- name: LXD Server installation and configuration
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: Install lxd server
+    include_role: name=install-lxd
+    
+    vars:
+      admin_user_name: "vagrant"
+      # storage_config: { name: "lxc_storage_pool", size: "15GB" }
+      snap_install: yes
+      operations:
+        #- install_lxd
+        #- add_admin
+        # - add_repository
+        #- lxd_init
+        - add_profile
+    
+    tags: install

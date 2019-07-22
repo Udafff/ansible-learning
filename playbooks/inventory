@@ -1,2 +1,6 @@
 control-vm ansible_ssh_host=192.168.1.10
 lxd-server ansible_ssh_host=192.168.1.11
+
+[containers]
+ubuntu-01 ansible_ssh_host=10.254.138.46
+docker-server ansible_ssh_host=10.254.138.147

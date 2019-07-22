@@ -1,0 +1,22 @@
+  
+---
+  # Debug snap_install variable True
+- name: "Test snap variable"
+  debug: msg="{{ snap | ternary('True','False') }}"
+  when: snap is defined
+  tags: [ never, debug ]
+
+  # Uninstall (absent) lxc package if snap_install variable True
+  # Install if vice versa
+- name: "{{ snap | ternary('Uninstall repository lxd packages','Install lxd from repository') }}"
+  package:
+    name:
+      - lxd
+      - lxd-client
+    state: "{{ snap | ternary('absent','present') }}"
+  
+  # Install snap package if snap_install variable True
+- name: "{{ snap | ternary('Install lxd from snap package','Uninstall snap lxd package') }}"
+  snap:
+    name: lxd
+    state: "{{ snap | ternary('present','absent') }}"

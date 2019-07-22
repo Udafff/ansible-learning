@@ -1,0 +1,28 @@
+---
+# Include tasks if required
+
+#lxd installation tasks
+- name: "Include install-lxc.yml tasks"
+  include_tasks: install-lxc.yml
+  when: "'install_lxd' in operations"
+
+# Add user to lxd group
+- name: "Include add-admin.yml tasks"
+  include_tasks: add-admin.yml
+  when: "'add_admin' in operations"
+
+# Add ubuntu minimal repository
+- name: "Include add-admin.yml tasks"
+  include_tasks: add-repository.yml
+  when: "'add_repository' in operations"
+
+# Running lxd first initialization
+- name: "Include lxd-init.yml tasks"
+  include_tasks: lxd-init.yml
+  when: "'lxd_init' in operations"
+
+# Running profile tasks
+- name: "Include add-profile.yml tasks"
+  include_tasks: add-profile.yml
+  when: "'add_profile' in operations"
+

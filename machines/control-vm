@@ -1,4 +1,4 @@
-vm_box = "generic/ubuntu1904"
+vm_box = "bento/ubuntu-19.04"
 
 config.vm.define "#{vm_name}" do |config|
     config.vm.box = "#{vm_box}"
@@ -9,7 +9,7 @@ config.vm.define "#{vm_name}" do |config|
     # Network
     #config.vm.network "private_network", type: "dhcp",  auto_config: false
     #config.vm.network "forwarded_port", guest: 22, host: "#{forward_port}", id: "ssh", auto_correct: true
-    config.vm.network "forwarded_port", guest: 80, host: "8080"
+    # config.vm.network "forwarded_port", guest: 80, host: "8080"
     config.vm.network "private_network", ip: "#{ip}"
 
     # Provisioners - Shell
@@ -17,7 +17,7 @@ config.vm.define "#{vm_name}" do |config|
 
     # Provisioners - Ansible
     config.vm.provision "ansible_local" do |ansible|
-        ansible.playbook = "/share/playbooks/control-vm-init.yml"
+        ansible.playbook = "/share/playbooks/os-provision.yml"
         #ansible.verbose = true
     end
 

@@ -1,0 +1,29 @@
+---
+- name: LXD connection
+  hosts: all
+  
+  tasks:
+    - name: Add container as a host
+      add_host:
+        hostname: centos-01
+        ansible_host: centos-01
+        ansible_connection: lxd
+        # url: unix:/var/snap/lxd/common/lxd/unix.socket
+      register: containers
+    
+    - debug: var=containers
+
+    - debug: var=groups
+
+    - name: execute shell command      
+      shell: uname -a; hostname -f
+      # delegate_to: centos-01
+      register: out
+      environment: 
+        PATH: "{{ ansible_env.PATH}}:/sbin:/usr/sbin:/snap/bin"
+
+    - debug: var=out
+
+    
+      
+      

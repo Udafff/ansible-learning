@@ -1,0 +1,62 @@
+---
+# Create lxc container provisioning profile
+
+- name: Create a profile
+  lxd_profile:
+    name: container-init 
+    state: present
+    description: Container provisioning profile
+    devices:
+      eth0:
+        nictype: bridged
+        parent: lxdbr0
+        type: nic
+      root:
+        path: /
+        pool: "{{ storage_config.name | default('lxc_storage_pool') }}"
+        type: disk
+
+- name: "Create temporary file for Profile config"
+  tempfile:
+    state: file
+    suffix: profile.conf
+  register: tmp_profile_config
+
+- name: "Copy Profile config"
+  copy:
+    src: profile.conf
+    dest: "{{ tmp_profile_config.path }}"
+
+############################  DEBUG MESSAGES ###########################################
+# Print initial config
+- name: "Print profile config"
+  shell: "cat {{ tmp_profile_config.path }}"
+  register: profile_config
+  tags: [ never, debug ]
+
+- name: "Debug profile_config config variable"
+  debug: var=profile_config
+  tags: [ never, debug ]
+#***************************  DEBUG MESSAGES *******************************************
+
+# Applying profile config
+- name: "Running profile applying command"
+  shell: "cat {{ tmp_profile_config.path }} | lxc profile set container-init user.user-data -"
+  register: profile_config_out
+  failed_when: false
+  changed_when: profile_config_out.rc == 0
+  environment: 
+    PATH: "{{ ansible_env.PATH}}:/sbin:/usr/sbin:/snap/bin"
+
+
+############################  DEBUG MESSAGES ###########################################
+- name: "Debug profile_config_out config variable"
+  debug: var=profile_config_out
+  tags: [ never, debug ]
+#***************************  DEBUG MESSAGES *******************************************
+
+- name: "Remove the temporary config file"
+  file:
+    path: "{{ tmp_profile_config.path }}"
+    state: absent
+  when: tmp_profile_config.path is defined

@@ -1,0 +1,40 @@
+---
+- name: "Create temporary file for LXD config"
+  tempfile:
+    state: file
+    suffix: initial_config.conf
+  register: tmp_lxd_config
+
+- name: "Copy LXD init config"
+  template:
+    src: initial_config.j2
+    dest: "{{ tmp_lxd_config.path }}"
+
+# Print initial config
+- name: "Print initial config"
+  shell: "cat {{ tmp_lxd_config.path }}"
+  register: cat_lxd_config
+  tags: [ never, debug ]
+
+- name: "Debug cat_lxd_config config variable"
+  debug: var=cat_lxd_config
+  tags: [ never, debug ]
+
+# Run LXD init and remove temp config file
+- name: "Run LXD init command"
+  shell: "cat {{ tmp_lxd_config.path }} | lxd init --preseed --"
+  register: lxd_init_out
+  failed_when: false
+  changed_when: lxd_init_out.rc == 0
+  environment: 
+    PATH: "{{ ansible_env.PATH}}:/sbin:/usr/sbin:/snap/bin"
+
+- name: "Debug lxd_init_out config variable"
+  debug: var=lxd_init_out
+  tags: [ never, debug ]
+
+- name: "Remove the temporary config file"
+  file:
+    path: "{{ tmp_lxd_config.path }}"
+    state: absent
+  when: tmp_lxd_config.path is defined

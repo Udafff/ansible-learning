@@ -1,0 +1,2 @@
+# True - if variable is not "None" and equal boolean "True". And vise versa
+snap: "{{ ((snap_install != None) and (snap_install|bool == True)) }}"

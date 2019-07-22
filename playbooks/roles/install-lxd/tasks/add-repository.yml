@@ -1,0 +1,15 @@
+---
+- name: Add minimal ubuntu repository
+  shell: >-
+    lxc remote add --protocol simplestreams
+    ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases/
+  register: add_minimal_ubuntu
+  failed_when: false
+  changed_when: add_minimal_ubuntu.rc == 0
+  environment: 
+        PATH: "{{ ansible_env.PATH}}:/sbin:/usr/sbin:/snap/bin"
+
+  # Debug add_minimal_ubuntu variable True
+- name: "Debug add_minimal_ubuntu variable"
+  debug: msg="{{ add_minimal_ubuntu }}"
+  tags: [ never, debug ]

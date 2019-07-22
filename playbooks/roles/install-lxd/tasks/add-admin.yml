@@ -1,0 +1,8 @@
+---
+# Add user to admin if admin_user_name varibale is defined
+- name: "Add user to 'lxd' admin group"
+  user: 
+    name: "{{ admin_user_name }}"
+    groups:  "lxd"
+    append: yes
+  when: admin_user_name is defined
