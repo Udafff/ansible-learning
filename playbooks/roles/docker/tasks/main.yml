@@ -1,0 +1,7 @@
+---
+# Include tasks if required
+
+#lxd installation tasks
+- name: "Include install-docker.yml tasks"
+  include_tasks: install-docker.yml
+  when: "'install_docker' in operations"

@@ -1,0 +1,44 @@
+---
+- name: LXD Container Provision
+  hosts: all
+
+  vars:
+    container: "centos-01"
+  
+  environment: 
+        PATH: "{{ ansible_env.PATH}}:/sbin:/usr/sbin:/snap/bin"
+
+  tasks:
+    - name: Install base packages
+      shell: |
+        lxc exec {{ container }} -- yum install epel-release -y
+        
+        lxc exec {{ container }} -- yum install openssh-server -y
+        lxc exec {{ container }} -- systemctl start sshd
+        lxc exec {{ container }} -- systemctl enable sshd
+      register: out
+    - debug: var=out
+
+    - name: Setup sudo and creating user
+      shell: |
+        lxc exec {{ container }} -- adduser vagrant -c "Vagrant user" -m -p '$6$AzpvezuLJ6TGSNUL$BPhlJgN0O2Yo4GHYTa18/t7UnP/.C1.yvytLV6LJp0UVkfi5IczN7yFTZE9caYorQPmEx2/tU73YQ/q/Ncl9h0' -s /bin/bash
+        lxc exec {{ container }} -- yum install sudo -y
+        lxc exec {{ container }} -- groupadd sudo
+        lxc exec {{ container }} -- usermod -G sudo -a vagrant
+        lxc exec {{ container }} -- sh -c "echo '%sudo   ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/sudo_group"
+        lxc exec {{ container }} -- chmod 440 /etc/sudoers.d/sudo_group
+
+        lxc exec {{ container }} -- usermod -p '$6$AzpvezuLJ6TGSNUL$BPhlJgN0O2Yo4GHYTa18/t7UnP/.C1.yvytLV6LJp0UVkfi5IczN7yFTZE9caYorQPmEx2/tU73YQ/q/Ncl9h0' root
+      register: out     
+    - debug: var=out
+
+    - name: Add ssh keys to user
+      shell: |
+        lxc exec {{ container }} -- mkdir -m=700 /home/vagrant/.ssh
+        lxc exec {{ container }} -- sh -c "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDh+nJc1QJTLtI8KWfiIy+1GBmClFj4wQK0GKtEw8ACqaOxLUjJYk3LVvgoYTtQhNMV3GN2Rh8Ql9dbHbOA8JNkjqM/DkxVLw/6gArhYC1Wa8b6lZ9plU4REMgHJkVf3ooxtjiPVd9GHRjy8YkRC2ICIh5mGwQvi1fSR/qA5Xd9nu8VWKUW88vLxg0stenUw5Y6N5d6kf03BD9L9g0VyjY0t6qCNaqv3h7Y/iZx2+s8QHTHOdqqnpmG2EBauAuJXBp1M6ooyccSzx4Lz6NCuqw/+BJLLXfHmPiUwNv5IVswgM6nMrhmSUMCVTNbCAjDawWCYJfMLWEWj4akowFV2355' >> /home/vagrant/.ssh/authorized_keys"lxc exec centos-01 -- sh -c "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDh+nJc1QJTLtI8KWfiIy+1GBmClFj4wQK0GKtEw8ACqaOxLUjJYk3LVvgoYTtQhNMV3GN2Rh8Ql9dbHbOA8JNkjqM/DkxVLw/6gArhYC1Wa8b6lZ9plU4REMgHJkVf3ooxtjiPVd9GHRjy8YkRC2ICIh5mGwQvi1fSR/qA5Xd9nu8VWKUW88vLxg0stenUw5Y6N5d6kf03BD9L9g0VyjY0t6qCNaqv3h7Y/iZx2+s8QHTHOdqqnpmG2EBauAuJXBp1M6ooyccSzx4Lz6NCuqw/+BJLLXfHmPiUwNv5IVswgM6nMrhmSUMCVTNbCAjDawWCYJfMLWEWj4akowFV2355' >> /home/vagrant/.ssh/authorized_keys"
+        lxc exec {{ container }} -- sh -c "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDpP83zag/c/LuuHQXoFTzW7HrJo+XeKLcgO2AmyhSZ4ixJhPr5XMM6x+l/XI8ySIgTKMk4pRtuFbro94j1x6ybzmtTBdr4vWf2ZWu0QC3mbjsIHFf/1tDxmTtXdcGO2WbtJkKBXtjHLw3an11LE1ZOqFMphsUASSwxSLzQR7VIO0URZC4qRXAgM0ckYDpf7HRL105DcZFXunoIAZatiTL32Mg1pw2rrODa2mqgF7opcDvac+Cf7mPYWXA/ajC0Wox0wivMgt2dQF/77IoR0k8wXhgjtCCq2+OA6faWv7IrYER1w2PikbqptbnyAGTkIt/HkMwTS352sWH1vTXKojnh' >> /home/vagrant/.ssh/authorized_keys"
+        lxc exec {{ container }} -- chmod 600 /home/vagrant/.ssh/authorized_keys
+        lxc exec {{ container }} -- chown -R vagrant:vagrant /home/vagrant/.ssh
+      register: out
+
+    - debug: var=out

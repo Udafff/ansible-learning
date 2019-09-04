@@ -1,0 +1,8 @@
+Go compiler:
+This will add your current directory as a volume to the container, 
+set the working directory to the volume, and run the command go build 
+which will tell go to compile the project in the working directory and output the executable
+
+    docker run --rm -v $(pwd):$(pwd) -w $(pwd) golang:1.8 go build -v -o hello-world
+    docker run --rm -v ""$PWD"":/usr/src/hello-world -w /usr/src/hello-world golang go build -v
+    docker run --rm -v "$PWD":/hello-world -w /hello-world golang go build -v

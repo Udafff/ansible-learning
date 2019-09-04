@@ -1,7 +1,7 @@
-- name: "Include add_user tasks"
-  include_tasks: add_user.yml
-  when: "'add_user' in operations"
-
 - name: "Include add_sudo tasks"
   include_tasks: add_sudo.yml
   when: "'add_sudo' in operations"
+  
+- name: "Include add_user tasks"
+  include_tasks: add_user.yml
+  when: "'add_user' in operations"

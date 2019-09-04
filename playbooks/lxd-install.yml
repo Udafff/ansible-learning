@@ -12,10 +12,10 @@
       # storage_config: { name: "lxc_storage_pool", size: "15GB" }
       snap_install: yes
       operations:
-        #- install_lxd
-        #- add_admin
+        - install_lxd
+        - add_admin
         # - add_repository
-        #- lxd_init
+        - lxd_init
         - add_profile
     
     tags: install

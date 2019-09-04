@@ -1,0 +1,12 @@
+---
+- name: Install docker play
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Docker Installation
+      include_role: name=docker
+      vars:
+        operations:
+          install_docker
+    
